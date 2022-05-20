@@ -8,6 +8,26 @@ metadata:
     tags: quickstart,nodejs,mongodb,instant-app
     iconClass: icon-nodejs
 objects:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: mongodb-26-rhel7
+      app.kubernetes.io/component: mongodb-26-rhel7
+      app.kubernetes.io/instance: mongodb-26-rhel7
+    name: mongodb-26-rhel7
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: registry.access.redhat.com/rhscl/mongodb-26-rhel7:latest
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/rhscl/mongodb-26-rhel7:latest
+      name: latest
+      referencePolicy:
+        type: Source
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
@@ -27,8 +47,7 @@ objects:
         - mongodb
         from:
           kind: ImageStreamTag
-          namespace: openshift
-          name: mongodb:latest
+          name: mongodb-26-rhel7:latest
     - type: ConfigChange
     replicas: 1
     test: false
@@ -101,8 +120,6 @@ objects:
     creationTimestamp: 
     labels:
       app: rocketchat
-    annotations:
-      openshift.io/generated-by: OpenShiftNewApp
   spec:
     strategy:
       type: Rolling
@@ -128,7 +145,6 @@ objects:
           deploymentconfig: rocketchat
         annotations:
           openshift.io/container.rocketchat.image.entrypoint: '["node","main.js"]'
-          openshift.io/generated-by: OpenShiftNewApp
       spec:
         volumes:
         - name: rocketchat-volume-1
